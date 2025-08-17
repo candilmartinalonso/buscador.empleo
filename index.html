@@ -3,224 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklist Interactivo - Río de Janeiro</title>
+    <title>Agregador de Empleo Argentina</title>
+    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Sandy Beige & Muted Teal -->
-    <!-- Application Structure Plan: A single-view, task-oriented mobile-first design. The core is the interactive checklist, grouped by collapsible categories. A dynamic progress bar at the top provides immediate feedback and motivation. A reset button adds utility. This structure was chosen for its simplicity and directness, turning a static list into a functional tool without unnecessary complexity, perfectly suited for the task of packing. -->
-    <!-- Visualization & Content Choices: The main data (checklist items) is presented as an interactive list. Goal: Organize & Track. Method: Custom-styled checkboxes and labels. Interaction: Users can click to check/uncheck items, which updates their visual state (line-through) and the overall progress bar. Category headers are clickable to collapse/expand sections, improving focus. A progress bar visualizes completion. Goal: Motivate. Method: A dynamically updated div. All interactions are handled with vanilla JS. This approach is more effective than a static list for tracking a task. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- Heroicons for the external link icon -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F5F5DC; /* Sandy Beige */
-            color: #333;
         }
-        .progress-bar-fill {
-            background-color: #20B2AA; /* Light Sea Green / Muted Teal */
-            transition: width 0.5s ease-in-out;
+        /* Custom scrollbar for results list */
+        #resultsList::-webkit-scrollbar {
+            width: 8px;
         }
-        .checklist-item input:checked + label {
-            text-decoration: line-through;
-            color: #888;
+        #resultsList::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
         }
-        .checklist-item input:checked + label .custom-checkbox .checkmark {
-            opacity: 1;
+        #resultsList::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
         }
-        .custom-checkbox {
-            border-color: #20B2AA;
-        }
-        .custom-checkbox .checkmark {
-            transition: opacity 0.2s ease;
-        }
-        .category-header {
-            cursor: pointer;
-            user-select: none;
-        }
-        .category-header .chevron {
-            transition: transform 0.3s ease;
-        }
-        .category-content.collapsed {
-            display: none;
-        }
-        .category-header.collapsed .chevron {
-            transform: rotate(-90deg);
+        #resultsList::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-    <div class="container mx-auto max-w-2xl p-4 sm:p-6 md:p-8">
+    <div class="w-full max-w-2xl mx-auto p-6 md:p-8 bg-white rounded-2xl shadow-lg">
         
-        <header class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Checklist para Río 🇧🇷</h1>
-            <p class="text-md text-gray-600 mt-1">25/08 al 04/09</p>
-        </header>
+        <!-- Search Section -->
+        <div id="searchSection">
+            <div class="text-center">
+                <!-- Icon and Title -->
+                <svg class="mx-auto h-12 w-auto text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                <h1 class="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Buscador de Empleo</h1>
+                <p class="mt-2 text-gray-600">Encuentra tu próximo trabajo en los portales líderes de Argentina.</p>
+            </div>
 
-        <main id="app-container">
-            
-            <div class="progress-section mb-6 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-md">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-medium text-gray-700">Progreso total</span>
-                    <span id="progress-text" class="text-sm font-bold text-[#20B2AA]">0%</span>
+            <!-- Search Form -->
+            <form id="searchForm" class="mt-8 space-y-4">
+                <div>
+                    <label for="jobQuery" class="sr-only">Puesto, empresa o palabra clave</label>
+                    <div class="relative">
+                        <input type="text" id="jobQuery" name="jobQuery" class="w-full px-4 py-3 text-lg text-gray-800 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Ej: Desarrollador, Administrativo..." required>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-3">
-                    <div id="progress-bar" class="progress-bar-fill h-3 rounded-full" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <div id="checklist-container" class="space-y-4">
-            </div>
-
-            <div class="mt-8 text-center p-4 bg-teal-50 border border-teal-200 rounded-lg">
-                <p class="font-bold text-teal-800">💡 Súper Tip</p>
-                <p class="text-sm text-teal-700 mt-1">
-                    Andá tildando a medida que guardás. ¡Te asegura cero olvidos y más espacio para souvenirs de vuelta!
-                </p>
-            </div>
-            
-            <div class="mt-6 flex justify-center">
-                <button id="reset-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-5 rounded-full transition-colors duration-300">
-                    Reiniciar Lista
+                
+                <!-- Search Button -->
+                <button type="submit" class="w-full flex items-center justify-center px-4 py-3 text-lg font-semibold text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                    Buscar Empleo
                 </button>
-            </div>
+            </form>
+        </div>
 
-        </main>
+        <!-- Results Section (Initially Hidden) -->
+        <div id="resultsSection" class="hidden">
+            <h2 class="text-2xl font-bold text-center text-gray-800">Resultados de Búsqueda</h2>
+            <p class="text-center text-gray-600 mt-1">Haz clic en los enlaces para ver las ofertas en cada portal.</p>
+            <div id="resultsList" class="mt-6 space-y-3">
+                <!-- Links will be injected here by JavaScript -->
+            </div>
+            <button id="newSearchBtn" class="mt-8 w-full flex items-center justify-center px-4 py-3 text-lg font-semibold text-white bg-gray-700 border border-transparent rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out">
+                Nueva Búsqueda
+            </button>
+        </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const checklistData = [
-                { category: '👕 Ropa', items: [
-                    '6–7 remeras/camisetas livianas',
-                    '3 camisas o blusas finas',
-                    '3 shorts/bermudas',
-                    '2 pantalones livianos',
-                    '1 buzo fino o campera liviana',
-                    '2 trajes de baño',
-                    'Ropa interior: 11 + 2 extra',
-                    'Medias: 5–6 pares'
-                ]},
-                { category: '👟 Calzado', items: [
-                    '1 par de zapatillas cómodas',
-                    '1 par de ojotas/sandalias',
-                    '1 par de zapatos casuales'
-                ]},
-                { category: '🧢 Accesorios', items: [
-                    'Sombrero o gorra',
-                    'Lentes de sol',
-                    'Mochila chica o bolso',
-                    'Toalla de microfibra'
-                ]},
-                { category: '🧴 Higiene y cuidado', items: [
-                    'Protector solar (mínimo FPS 30)',
-                    'Repelente de insectos',
-                    'Kit de higiene personal',
-                    'Medicación habitual'
-                ]},
-                { category: '📱 Extras útiles', items: [
-                    'Adaptador de enchufe tipo N',
-                    'Bolsa impermeable para celular/documentos',
-                    'Copia digital de documentos y reservas'
-                ]}
-            ];
+        // DOM Elements
+        const searchSection = document.getElementById('searchSection');
+        const resultsSection = document.getElementById('resultsSection');
+        const searchForm = document.getElementById('searchForm');
+        const jobQueryInput = document.getElementById('jobQuery');
+        const resultsList = document.getElementById('resultsList');
+        const newSearchBtn = document.getElementById('newSearchBtn');
 
-            const checklistContainer = document.getElementById('checklist-container');
-            const progressBar = document.getElementById('progress-bar');
-            const progressText = document.getElementById('progress-text');
-            const resetButton = document.getElementById('reset-button');
-            let totalItems = 0;
-
-            function renderChecklist() {
-                checklistContainer.innerHTML = '';
-                let itemIndex = 0;
-                checklistData.forEach((categoryObj, categoryIndex) => {
-                    const categoryId = `category-${categoryIndex}`;
-                    
-                    const categoryWrapper = document.createElement('div');
-                    categoryWrapper.className = 'bg-white/80 backdrop-blur-sm rounded-xl shadow-md overflow-hidden';
-
-                    const header = document.createElement('div');
-                    header.className = 'category-header p-4 flex justify-between items-center border-b border-gray-200';
-                    header.setAttribute('data-target', `#${categoryId}-content`);
-                    header.innerHTML = `
-                        <h2 class="text-lg font-semibold text-gray-800">${categoryObj.category}</h2>
-                        <span class="chevron text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
-                            </svg>
-                        </span>
-                    `;
-
-                    const content = document.createElement('div');
-                    content.id = `${categoryId}-content`;
-                    content.className = 'category-content p-4 space-y-3';
-
-                    categoryObj.items.forEach(itemText => {
-                        const itemId = `item-${itemIndex}`;
-                        totalItems++;
-                        const itemEl = document.createElement('div');
-                        itemEl.className = 'checklist-item flex items-center';
-                        itemEl.innerHTML = `
-                            <input type="checkbox" id="${itemId}" class="hidden">
-                            <label for="${itemId}" class="flex items-center cursor-pointer text-gray-700 w-full">
-                                <span class="custom-checkbox w-5 h-5 border-2 rounded-md mr-3 flex-shrink-0 flex items-center justify-center">
-                                    <span class="checkmark opacity-0 text-white">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#20B2AA" class="bi bi-check-lg" viewBox="0 0 16 16">
-                                          <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022z"/>
-                                        </svg>
-                                    </span>
-                                </span>
-                                ${itemText}
-                            </label>
-                        `;
-                        content.appendChild(itemEl);
-                        itemIndex++;
-                    });
-                    
-                    categoryWrapper.appendChild(header);
-                    categoryWrapper.appendChild(content);
-                    checklistContainer.appendChild(categoryWrapper);
-                });
-            }
-
-            function updateProgress() {
-                const checkedItems = document.querySelectorAll('.checklist-item input:checked').length;
-                const percentage = totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0;
-                progressBar.style.width = `${percentage}%`;
-                progressText.textContent = `${percentage}%`;
-            }
-
-            function setupEventListeners() {
-                checklistContainer.addEventListener('change', (e) => {
-                    if (e.target.type === 'checkbox') {
-                        updateProgress();
-                    }
-                });
-
-                checklistContainer.addEventListener('click', (e) => {
-                    const header = e.target.closest('.category-header');
-                    if (header) {
-                        const content = document.querySelector(header.dataset.target);
-                        content.classList.toggle('collapsed');
-                        header.classList.toggle('collapsed');
-                    }
-                });
-                
-                resetButton.addEventListener('click', () => {
-                    document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(checkbox => {
-                        checkbox.checked = false;
-                    });
-                    updateProgress();
-                });
-            }
-
-            renderChecklist();
-            updateProgress();
-            setupEventListeners();
+        // Event Listeners
+        searchForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            displayResults();
         });
+
+        newSearchBtn.addEventListener('click', () => {
+            resultsSection.classList.add('hidden');
+            searchSection.classList.remove('hidden');
+            jobQueryInput.value = '';
+        });
+
+        /**
+         * Generates and displays the search result links.
+         */
+        function displayResults() {
+            const query = jobQueryInput.value.trim();
+            if (!query) {
+                // Simple validation feedback
+                jobQueryInput.classList.add('border-red-500', 'ring-red-500');
+                setTimeout(() => jobQueryInput.classList.remove('border-red-500', 'ring-red-500'), 2000);
+                return;
+            }
+
+            const encodedQuery = encodeURIComponent(query);
+
+            // Focused list of job portals
+            const jobPortals = [
+                { name: 'Bumeran', url: `https://www.bumeran.com.ar/empleos-busqueda-${encodedQuery}.html` },
+                { name: 'Computrabajo', url: `https://ar.computrabajo.com/ofertas-de-trabajo/?q=${encodedQuery}` },
+                { name: 'Google Empleos', url: `https://www.google.com/search?q=${encodedQuery}+empleo&ibp=htl;jobs` },
+                { name: 'LinkedIn', url: `https://www.linkedin.com/jobs/search/?keywords=${encodedQuery}&location=Argentina` },
+                { name: 'Zonajobs', url: `https://www.zonajobs.com.ar/empleos-busqueda-${encodedQuery}.html` }
+            ].sort((a, b) => a.name.localeCompare(b.name)); // Sorts the array alphabetically by name
+
+            // Clear previous results
+            resultsList.innerHTML = '';
+
+            // Create and append a link for each portal
+            jobPortals.forEach(portal => {
+                const linkElement = document.createElement('a');
+                linkElement.href = portal.url;
+                linkElement.target = '_blank'; // Open in a new tab
+                linkElement.rel = 'noopener noreferrer';
+                linkElement.className = 'flex items-center justify-between w-full p-4 bg-gray-50 hover:bg-blue-100 border border-gray-200 rounded-lg transition duration-150 ease-in-out';
+                
+                linkElement.innerHTML = `
+                    <span class="font-medium text-gray-800">${portal.name}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                `;
+                resultsList.appendChild(linkElement);
+            });
+
+            // Switch views
+            searchSection.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
