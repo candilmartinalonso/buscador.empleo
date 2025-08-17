@@ -116,15 +116,17 @@
                 return;
             }
 
-            const encodedQuery = encodeURIComponent(query);
+            // **FIX:** Replace spaces with hyphens for URL compatibility.
+            const urlFriendlyQuery = query.replace(/\s+/g, '-');
+            const encodedQuery = encodeURIComponent(query); // Still needed for some URLs
 
             // Focused list of job portals
             const jobPortals = [
-                { name: 'Bumeran', url: `https://www.bumeran.com.ar/empleos-busqueda-${encodedQuery}.html` },
+                { name: 'Bumeran', url: `https://www.bumeran.com.ar/empleos-busqueda-${urlFriendlyQuery}.html` },
                 { name: 'Computrabajo', url: `https://ar.computrabajo.com/ofertas-de-trabajo/?q=${encodedQuery}` },
                 { name: 'Google Empleos', url: `https://www.google.com/search?q=${encodedQuery}+empleo&ibp=htl;jobs` },
                 { name: 'LinkedIn', url: `https://www.linkedin.com/jobs/search/?keywords=${encodedQuery}&location=Argentina` },
-                { name: 'Zonajobs', url: `https://www.zonajobs.com.ar/empleos-busqueda-${encodedQuery}.html` }
+                { name: 'Zonajobs', url: `https://www.zonajobs.com.ar/empleos-busqueda-${urlFriendlyQuery}.html` }
             ].sort((a, b) => a.name.localeCompare(b.name)); // Sorts the array alphabetically by name
 
             // Clear previous results
