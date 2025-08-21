@@ -3,155 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agregador de Empleo Argentina</title>
-    <!-- Tailwind CSS for styling -->
+    <title>Buscador de Empleo | Búsqueda Inteligente</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
+    
+    <!-- Google Fonts: Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Heroicons for the external link icon -->
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles and Animations -->
     <style>
+        /* --- Base and Background --- */
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background-color: #0c0a1a;
+            overflow: hidden; /* Prevent scrollbars from the aurora effect */
         }
-        /* Custom scrollbar for results list */
-        #resultsList::-webkit-scrollbar {
-            width: 8px;
+        
+        #aurora-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 70% 30%, #4a00e0 0%, transparent 50%),
+                        radial-gradient(ellipse at 30% 70%, #8e2de2 0%, transparent 50%);
+            animation: aurora 20s linear infinite;
+            filter: blur(80px);
+            z-index: -1;
         }
-        #resultsList::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
+
+        /* --- Keyframe Animations --- */
+        @keyframes aurora {
+            0% { transform: rotate(0deg) scale(1.2); }
+            50% { transform: rotate(180deg) scale(1.5); }
+            100% { transform: rotate(360deg) scale(1.2); }
         }
-        #resultsList::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        #resultsList::-webkit-scrollbar-thumb:hover {
-            background: #555;
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .result-item {
+            animation: popIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            opacity: 0; /* Start hidden for animation */
+            transition: transform 0.2s ease-out; /* For 3D tilt effect */
+        }
+
+        /* --- Tooltip --- */
+        .tooltip {
+            position: relative;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: #1f2937;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 10;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4 antialiased text-white">
+    
+    <div id="aurora-background"></div>
 
-    <div class="w-full max-w-2xl mx-auto p-6 md:p-8 bg-white rounded-2xl shadow-lg">
-        
-        <!-- Search Section -->
-        <div id="searchSection">
-            <div class="text-center">
-                <!-- Icon and Title -->
-                <svg class="mx-auto h-12 w-auto text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-                <h1 class="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Buscador de Empleo</h1>
-                <p class="mt-2 text-gray-600">Encuentra tu próximo trabajo en los portales líderes de Argentina.</p>
+    <div class="w-full max-w-4xl mx-auto z-10">
+        <!-- Main Card with Glassmorphism Effect -->
+        <div class="bg-black/30 backdrop-blur-xl rounded-3xl shadow-2xl p-6 md:p-10 border border-white/10">
+            
+            <!-- Header Section -->
+            <div class="text-center mb-8 fade-in">
+                <div class="flex justify-center items-center mx-auto h-16 w-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-lg mb-4">
+                    <svg class="h-8 w-8 text-white" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">Buscador de Empleo</h1>
+                <p class="mt-3 text-lg text-gray-300 max-w-xl mx-auto">Tu portal hacia el próximo gran paso profesional.</p>
             </div>
 
             <!-- Search Form -->
-            <form id="searchForm" class="mt-8 space-y-4">
-                <div>
-                    <label for="jobQuery" class="sr-only">Puesto, empresa o palabra clave</label>
-                    <div class="relative">
-                        <input type="text" id="jobQuery" name="jobQuery" class="w-full px-4 py-3 text-lg text-gray-800 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Ej: Desarrollador, Administrativo..." required>
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                    </div>
+            <form id="searchForm" class="mb-8 fade-in" style="animation-delay: 150ms;">
+                <div class="relative flex items-center">
+                    <input type="text" id="jobQuery" name="jobQuery" class="w-full pl-6 pr-28 py-4 text-lg text-gray-200 bg-black/30 border-2 border-white/20 rounded-full focus:outline-none focus:ring-4 focus:ring-purple-500/50 focus:border-purple-500 transition-all duration-300 shadow-sm placeholder-gray-400" placeholder="Ej: React, Project Manager, Ventas..." required>
+                    <button id="clearBtn" type="button" class="absolute right-16 mr-2 p-2 text-gray-400 hover:text-white transition-colors hidden">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    <button type="submit" class="absolute inset-y-0 right-0 flex items-center justify-center w-16 h-full text-white bg-gradient-to-br from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 rounded-full transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-indigo-500/50 shadow-lg">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                    </button>
                 </div>
-                
-                <!-- Search Button -->
-                <button type="submit" class="w-full flex items-center justify-center px-4 py-3 text-lg font-semibold text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-                    Buscar Empleo
-                </button>
             </form>
-        </div>
 
-        <!-- Results Section (Initially Hidden) -->
-        <div id="resultsSection" class="hidden">
-            <h2 class="text-2xl font-bold text-center text-gray-800">Resultados de Búsqueda</h2>
-            <p class="text-center text-gray-600 mt-1">Haz clic en los enlaces para ver las ofertas en cada portal.</p>
-            <div id="resultsList" class="mt-6 space-y-3">
-                <!-- Links will be injected here by JavaScript -->
+            <!-- Results Section -->
+            <div id="resultsSection">
+                <div id="resultsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Links will be injected here -->
+                </div>
             </div>
-            <button id="newSearchBtn" class="mt-8 w-full flex items-center justify-center px-4 py-3 text-lg font-semibold text-white bg-gray-700 border border-transparent rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out">
-                Nueva Búsqueda
-            </button>
         </div>
     </div>
 
     <script>
-        // DOM Elements
-        const searchSection = document.getElementById('searchSection');
-        const resultsSection = document.getElementById('resultsSection');
-        const searchForm = document.getElementById('searchForm');
-        const jobQueryInput = document.getElementById('jobQuery');
-        const resultsList = document.getElementById('resultsList');
-        const newSearchBtn = document.getElementById('newSearchBtn');
+        // --- DOM Elements ---
+        const ui = {
+            searchForm: document.getElementById('searchForm'),
+            jobQueryInput: document.getElementById('jobQuery'),
+            clearBtn: document.getElementById('clearBtn'),
+            resultsList: document.getElementById('resultsList')
+        };
 
-        // Event Listeners
-        searchForm.addEventListener('submit', function(event) {
+        // --- Job Portals Data ---
+        const jobPortals = [
+            { name: 'Bumeran', url: (q) => `https://www.bumeran.com.ar/empleos-busqueda-${q.replace(/\s+/g, '-')}.html` },
+            { name: 'Computrabajo', url: (q) => `https://ar.computrabajo.com/ofertas-de-trabajo/?q=${encodeURIComponent(q)}` },
+            { name: 'Google Empleos', url: (q) => `https://www.google.com/search?q=${encodeURIComponent(q)}+empleo&ibp=htl;jobs` },
+            { name: 'LinkedIn', url: (q) => `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(q)}&location=Argentina` },
+            { name: 'Zonajobs', url: (q) => `https://www.zonajobs.com.ar/empleos-busqueda-${q.replace(/\s+/g, '-')}.html` },
+            { name: 'Indeed', url: (q) => `https://ar.indeed.com/jobs?q=${encodeURIComponent(q)}` }
+        ].sort((a, b) => a.name.localeCompare(b.name));
+
+        // --- Event Listeners ---
+        ui.searchForm.addEventListener('submit', handleSearch);
+        ui.jobQueryInput.addEventListener('input', () => ui.clearBtn.classList.toggle('hidden', !ui.jobQueryInput.value));
+        ui.clearBtn.addEventListener('click', clearSearch);
+
+        // --- Functions ---
+
+        function handleSearch(event) {
             event.preventDefault();
-            displayResults();
-        });
-
-        newSearchBtn.addEventListener('click', () => {
-            resultsSection.classList.add('hidden');
-            searchSection.classList.remove('hidden');
-            jobQueryInput.value = '';
-        });
-
-        /**
-         * Generates and displays the search result links.
-         */
-        function displayResults() {
-            const query = jobQueryInput.value.trim();
+            const query = ui.jobQueryInput.value.trim();
             if (!query) {
-                // Simple validation feedback
-                jobQueryInput.classList.add('border-red-500', 'ring-red-500');
-                setTimeout(() => jobQueryInput.classList.remove('border-red-500', 'ring-red-500'), 2000);
+                ui.jobQueryInput.focus();
                 return;
             }
+            renderResults(query);
+        }
 
-            // **FIX:** Replace spaces with hyphens for URL compatibility.
-            const urlFriendlyQuery = query.replace(/\s+/g, '-');
-            const encodedQuery = encodeURIComponent(query); // Still needed for some URLs
+        function clearSearch() {
+            ui.jobQueryInput.value = '';
+            ui.resultsList.innerHTML = '';
+            ui.clearBtn.classList.add('hidden');
+            ui.jobQueryInput.focus();
+        }
 
-            // Focused list of job portals
-            const jobPortals = [
-                { name: 'Bumeran', url: `https://www.bumeran.com.ar/empleos-busqueda-${urlFriendlyQuery}.html` },
-                { name: 'Computrabajo', url: `https://ar.computrabajo.com/ofertas-de-trabajo/?q=${encodedQuery}` },
-                { name: 'Google Empleos', url: `https://www.google.com/search?q=${encodedQuery}+empleo&ibp=htl;jobs` },
-                { name: 'LinkedIn', url: `https://www.linkedin.com/jobs/search/?keywords=${encodedQuery}&location=Argentina` },
-                { name: 'Zonajobs', url: `https://www.zonajobs.com.ar/empleos-busqueda-${urlFriendlyQuery}.html` }
-            ].sort((a, b) => a.name.localeCompare(b.name)); // Sorts the array alphabetically by name
-
-            // Clear previous results
-            resultsList.innerHTML = '';
-
-            // Create and append a link for each portal
-            jobPortals.forEach(portal => {
-                const linkElement = document.createElement('a');
-                linkElement.href = portal.url;
-                linkElement.target = '_blank'; // Open in a new tab
-                linkElement.rel = 'noopener noreferrer';
-                linkElement.className = 'flex items-center justify-between w-full p-4 bg-gray-50 hover:bg-blue-100 border border-gray-200 rounded-lg transition duration-150 ease-in-out';
-                
-                linkElement.innerHTML = `
-                    <span class="font-medium text-gray-800">${portal.name}</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                `;
-                resultsList.appendChild(linkElement);
+        function renderResults(query) {
+            ui.resultsList.innerHTML = '';
+            jobPortals.forEach((portal, index) => {
+                const portalUrl = portal.url(query);
+                const card = createPortalCard(portal.name, portalUrl, index);
+                ui.resultsList.appendChild(card);
             });
+        }
 
-            // Switch views
-            searchSection.classList.add('hidden');
-            resultsSection.classList.remove('hidden');
+        function createPortalCard(name, url, index) {
+            const card = document.createElement('div');
+            card.className = 'result-item bg-black/20 p-5 rounded-2xl shadow-lg border border-white/10 flex flex-col justify-between';
+            card.style.animationDelay = `${index * 100}ms`;
+
+            card.innerHTML = `
+                <h3 class="font-bold text-xl text-white">${name}</h3>
+                <div class="mt-4 flex items-center space-x-2">
+                    <a href="${url}" target="_blank" rel="noopener noreferrer" class="w-full text-center px-4 py-2 text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-purple-500">
+                        Ver Ofertas
+                    </a>
+                    <button class="copy-btn p-2 text-gray-300 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg transition-colors tooltip" data-url="${url}">
+                        <span class="tooltiptext">Copiar Enlace</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    </button>
+                </div>
+            `;
+            
+            // Add event listeners
+            card.querySelector('.copy-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                copyToClipboard(e.currentTarget);
+            });
+            
+            // 3D Tilt Effect
+            card.addEventListener('mousemove', handleMove);
+            card.addEventListener('mouseleave', handleLeave);
+
+            return card;
+        }
+
+        function copyToClipboard(button) {
+            const url = button.dataset.url;
+            const tooltip = button.querySelector('.tooltiptext');
+            navigator.clipboard.writeText(url).then(() => {
+                tooltip.textContent = '¡Copiado!';
+                setTimeout(() => { tooltip.textContent = 'Copiar Enlace'; }, 1500);
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+                tooltip.textContent = 'Error';
+            });
+        }
+
+        // --- 3D Tilt Effect Handlers ---
+        const TILT_STRENGTH = 15;
+
+        function handleMove(e) {
+            const card = e.currentTarget;
+            const { width, height, left, top } = card.getBoundingClientRect();
+            const x = e.clientX - left;
+            const y = e.clientY - top;
+            
+            const rotateX = (y / height - 0.5) * -TILT_STRENGTH;
+            const rotateY = (x / width - 0.5) * TILT_STRENGTH;
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+        }
+
+        function handleLeave(e) {
+            const card = e.currentTarget;
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
         }
     </script>
 </body>
